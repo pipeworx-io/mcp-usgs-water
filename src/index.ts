@@ -845,8 +845,34 @@ async function fetchWaterMl(path: string): Promise<WaterMlJson | { error: string
   const res = await pwFetch(`${BASE}${path}`, {
     headers: { Accept: 'application/json', 'User-Agent': UA },
   });
-  if (!res.ok) return { error: `USGS NWIS: ${res.status} ${(await res.text()).slice(0, 200)}` };
-  return (await res.json()) as WaterMlJson;
+  if (!res.ok) {
+    // Say which side failed. NWIS answers 400 for a malformed request (an
+    // unknown parameterCd, a bad date, a site number that is not 8–15 digits)
+    // and 404 for a site it does not have; neither is a Pipeworx defect, yet
+    // the bare `{error}` this returned booked every one as class=error — 22
+    // distinct anonymous callers, zero successes, in the 7d to 2026-10-07,
+    // which put daily_values on the dead-tool sweep while the tool worked for
+    // every well-formed call. 5xx and 503 maintenance windows are theirs.
+    const body = (await res.text()).slice(0, 200).replace(/\s+/g, ' ').trim();
+    if (res.status === 400) {
+      return { error: `user_error: USGS NWIS rejected the request (HTTP 400): ${body} — check the site number (8–15 digits), parameter_code (e.g. 00060 streamflow, 00065 gage height) and YYYY-MM-DD dates.` };
+    }
+    if (res.status === 404) {
+      return { error: `not_found: USGS NWIS has no data for that request (HTTP 404): ${body}` };
+    }
+    if (res.status >= 500) {
+      return { error: `upstream_down: USGS NWIS answered HTTP ${res.status}: ${body}` };
+    }
+    return { error: `USGS NWIS: ${res.status} ${body}` };
+  }
+  const text = await res.text();
+  try {
+    return JSON.parse(text) as WaterMlJson;
+  } catch {
+    // NWIS occasionally answers 200 with an HTML or plain-text notice instead of
+    // WaterML JSON; that is their outage shape, not a caller mistake.
+    return { error: `upstream_down: USGS NWIS answered HTTP 200 with a non-JSON body: ${text.slice(0, 160).replace(/\s+/g, ' ').trim()}` };
+  }
 }
 
 async function currentConditions(args: Record<string, unknown>): Promise<unknown> {
