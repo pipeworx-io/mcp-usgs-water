@@ -1,0 +1,80 @@
+[
+  {
+    "name": "current_conditions",
+    "description": "Latest instantaneous (real-time) readings for one or more USGS gauge sites. Returns the most recent value per site × parameter — e.g. current streamflow and gage height for a river. Common parameter codes: 00060 = discharge/streamflow (ft³/s), 00065 = gage height (ft), 00010 = water temperature (°C), 00045 = precipitation (in), 00095 = specific conductance, 00300 = dissolved oxygen, 63680 = turbidity. Keyless.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "sites": {
+          "type": "string",
+          "description": "Comma-separated USGS site numbers, e.g. \"01646500\" (Potomac at Washington DC) or \"01646500,01647000\"."
+        },
+        "parameter_codes": {
+          "type": "string",
+          "description": "Comma-separated USGS parameter codes (default \"00060,00065\" = streamflow + gage height)."
+        }
+      },
+      "required": [
+        "sites"
+      ]
+    }
+  },
+  {
+    "name": "daily_values",
+    "description": "Daily-values time series for a single USGS site + parameter over a date range. Returns one statistic per day (default mean). Useful for trends, hydrographs, and historical comparison. Common statCd: 00003 = mean, 00001 = max, 00002 = min. Common parameter codes: 00060 = discharge (ft³/s), 00065 = gage height (ft), 00010 = water temperature (°C). Keyless.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "site": {
+          "type": "string",
+          "description": "A single USGS site number, e.g. \"01646500\"."
+        },
+        "parameter_code": {
+          "type": "string",
+          "description": "USGS parameter code (default \"00060\" = discharge/streamflow)."
+        },
+        "stat_code": {
+          "type": "string",
+          "description": "Daily statistic code (default \"00003\" = mean; 00001 = max, 00002 = min)."
+        },
+        "start_date": {
+          "type": "string",
+          "description": "Start date, YYYY-MM-DD."
+        },
+        "end_date": {
+          "type": "string",
+          "description": "End date, YYYY-MM-DD."
+        }
+      },
+      "required": [
+        "site",
+        "start_date",
+        "end_date"
+      ]
+    }
+  },
+  {
+    "name": "find_sites",
+    "description": "Discover active USGS gauge sites in a US state that are currently reporting a given parameter (real-time). Returns sites with their latest reading; useful for finding which gauges are live in a region. Can match many sites, so results are capped. Keyless.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "type": "string",
+          "description": "2-letter US state code, e.g. \"co\", \"ca\", \"tx\"."
+        },
+        "parameter_code": {
+          "type": "string",
+          "description": "USGS parameter code (default \"00060\" = discharge/streamflow)."
+        },
+        "limit": {
+          "type": "number",
+          "description": "Max sites to return (default 30, max 60)."
+        }
+      },
+      "required": [
+        "state"
+      ]
+    }
+  }
+]
