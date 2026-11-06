@@ -1,6 +1,6 @@
 {
   "name": "@pipeworx/mcp-usgs-water",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "USGS Water Services (NWIS) MCP.",
   "type": "module",
   "main": "lib/index.js",
@@ -27,7 +27,7 @@
     "mode": "gateway",
     "slug": "usgs-water",
     "gatewaySlug": "usgs-water",
-    "sourceHash": "v1-f6859e1301538ab411623e9e072d9da64e3b92971e51622472b00329a45508ee",
-    "sourceCommit": "98853f34516646cb7c4c1460f09249b262c0269e"
+    "sourceHash": "v1-be22c570bf512d21993b0c5cf1219186b271f3139fe75417e2b0ab7bb880b715",
+    "sourceCommit": "ca52e7ed1e1ccad897c2da1b0fa105edc0bc3b2e"
   }
 }
